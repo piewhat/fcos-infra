@@ -1,0 +1,17 @@
+[Unit]
+Description=livekit
+After=network-online.target
+Wants=network-online.target
+
+[Container]
+ContainerName=livekit
+Image=docker.io/livekit/livekit-server
+Exec=--dev --redis-host redis:6379 --redis-password "----snip----"
+Network=web.network
+AutoUpdate=registry
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

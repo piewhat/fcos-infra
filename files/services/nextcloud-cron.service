@@ -1,0 +1,11 @@
+[Unit]
+Description=Nextcloud container cron service
+Wants=network-online.target
+After=network-online.target nextcloud.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/podman exec -t -u www-data nextcloud-app php -f /var/www/html/cron.php
+
+[Install]
+WantedBy=default.target

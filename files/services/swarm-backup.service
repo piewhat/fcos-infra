@@ -1,0 +1,11 @@
+[Unit]
+Description=Backup swarm
+Requires=local-fs.target
+After=local-fs.target
+RequiresMountsFor=/var/swarm
+
+[Service]
+Type=oneshot
+SuccessExitStatus=24
+#ExecStart=/usr/bin/rsync -a --delete -v /var/swarm/ /var/backup/swarm
+ExecStart=systemd-inhibit --who="rsync" --why="Prevent interrupting scheduled backup" /usr/bin/rsync -aiv --delete --exclude '/media/other' --exclude '.snapshots'  /var/swarm/ /var/backup

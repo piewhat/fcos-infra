@@ -1,0 +1,24 @@
+[Unit]
+Description=sonarr4k
+After=network-online.target qbittorrent.service
+Wants=network-online.target
+
+[Container]
+ContainerName=sonarr4k
+Image=ghcr.io/hotio/sonarr:release
+PublishPort=8999:8989
+Environment=PUID=1005
+Environment=PGID=1005
+Environment=UMASK=002
+Environment=TZ="Etc/UTC"
+Volume=/var/swarm/media/other/arr:/data:z
+Volume=/var/swarm/home/containers/sonarr4k/config:/config:Z
+Network=web.network
+AutoUpdate=registry
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target
+

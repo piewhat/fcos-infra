@@ -1,0 +1,37 @@
+[Unit]
+Description=qBittorrent
+Wants=network-online.target
+Requires=gluetun.service
+After=network-online.target gluetun.service
+
+[Container]
+Image=lscr.io/linuxserver/qbittorrent:latest
+ContainerName=qbittorrent
+
+# Environment
+Environment=PUID=1005
+Environment=PGID=1005
+Environment=UMASK=002
+Environment=TZ=America/New_York
+
+Environment=TORRENTING_PORT=${QPORT}
+
+# Ports
+#PublishPort=8080:8080
+#PublishPort=6881:6881
+#PublishPort=6881:6881/udp
+Network=container:gluetun
+# Volumes
+Volume=/var/swarm/home/containers/qbittorrent:/config:Z
+#Volume=/data/torrents:/downloads:Z
+Volume=/var/swarm/media/other/arr:/data:z
+Volume=/var/swarm/home/containers/gluetun/port:/gluetun:Z
+# Optional: improve shutdown behavior
+StopTimeout=60
+
+[Service]
+EnvironmentFile=-%t/my-service-env
+ExecStartPre=/usr/bin/sh -c 'echo "QPORT=$(cat /var/swarm/home/containers/gluetun/port/forwarded_port)" > %t/my-service-env'
+
+[Install]
+WantedBy=default.target

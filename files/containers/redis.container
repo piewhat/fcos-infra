@@ -1,0 +1,17 @@
+[Unit]
+Description=redis
+After=network-online.target
+Wants=network-online.target
+
+[Container]
+ContainerName=redis
+Image=docker.io/library/redis:alpine
+Exec=redis-server --requirepass "----snip----"
+Network=web.network
+AutoUpdate=registry
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,8 @@
+[Unit]
+Description=Nextcloud cron timer
+
+[Timer]
+OnCalendar=*:0/15
+
+[Install]
+WantedBy=timers.target

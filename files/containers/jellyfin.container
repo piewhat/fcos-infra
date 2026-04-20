@@ -1,0 +1,27 @@
+[Unit]
+Description=jellyfin
+After=network-online.target
+Wants=network-online.target
+
+[Container]
+ContainerName=jellyfin
+Image=docker.io/jellyfin/jellyfin:latest
+AutoUpdate=registry
+Network=web.network
+PublishPort=8096:8096/tcp
+UserNS=keep-id
+Volume=/var/swarm/home/containers/jellyfin/config:/config:Z
+Volume=/var/swarm/home/containers/jellyfin/cache:/cache:Z
+Volume=/var/swarm/media:/media:Z
+AutoUpdate=registry
+AddDevice=/dev/dri:/dev/dri
+Environment=LIBVA_DRIVER_NAME=iHD
+
+[Service]
+# Inform systemd of additional exit status
+SuccessExitStatus=0 143
+Restart=always
+
+[Install]
+# Start by default on boot
+WantedBy=default.target

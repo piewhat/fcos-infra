@@ -1,0 +1,19 @@
+[Unit]
+Description=Piebot
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Container]
+ContainerName=piebot
+Image=piebot:latest
+Environment=RUST_LOG=INFO
+Timezone=America/New_York
+Volume=/var/swarm/home/containers/piebot:/usr/src/piebot/data:Z
+AutoUpdate=local
+Network=web.network
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

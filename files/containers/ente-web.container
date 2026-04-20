@@ -1,0 +1,24 @@
+[Unit]
+Description=Ente Web Frontend
+After=ente.service
+
+[Container]
+ContainerName=ente-web
+Image=ghcr.io/ente-io/web:latest
+# Points to the Museum API you just fixed
+Environment=NEXT_PUBLIC_ENTE_ENDPOINT=https://api.ente.----snip----
+Environment=ENTE_API_ORIGIN=https://api.ente.----snip----
+Environment=ENTE_APP_ORIGIN=https://ente.----snip----
+# Maps to the ports Ente expects for its various sub-apps
+PublishPort=3000:3000
+PublishPort=3001:3001
+PublishPort=3002:3002
+PublishPort=3003:3003
+Network=web.network
+AutoUpdate=registry
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

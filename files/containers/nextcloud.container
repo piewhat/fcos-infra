@@ -1,0 +1,18 @@
+[Unit]
+Description=nextcloud
+After=network-online.target postgresql.service redis.service
+Wants=network-online.target
+
+[Container]
+ContainerName=nextcloud
+Image=docker.io/library/nextcloud:stable
+Network=web.network
+Environment=NEXTCLOUD_TRUSTED_DOMAINS=nextcloud.----snip----
+Volume=/var/swarm/home/containers/nextcloud:/var/www/html:Z
+AutoUpdate=registry
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

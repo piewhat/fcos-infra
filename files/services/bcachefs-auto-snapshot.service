@@ -1,0 +1,23 @@
+[Unit]
+Description=bcachefs automatic snapshot service
+Documentation=man:bcachefs(8)
+After=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/bcachefs-auto-snapshot
+# Or use the full path to your binary:
+# ExecStart=/usr/bin/bcachefs-auto-snapshot
+
+# Run as root (required for bcachefs operations)
+#User=root
+
+# Optional: Add some safety/logging
+StandardOutput=journal
+StandardError=journal
+
+# Optional: Timeout if something hangs
+#TimeoutStartSec=5min
+
+[Install]
+WantedBy=multi-user.target

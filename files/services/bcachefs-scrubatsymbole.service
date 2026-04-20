@@ -1,0 +1,11 @@
+[Unit]
+Description=bcachefs scrub on %I
+
+[Service]
+Nice=19
+IOSchedulingClass=idle
+KillSignal=SIGINT
+ExecStart=systemd-inhibit --who="bcachefs" --why="Prevent interrupting bcachefs data scrub" /usr/bin/bcachefs data scrub %I
+
+[Install]
+WantedBy=multi-user.target

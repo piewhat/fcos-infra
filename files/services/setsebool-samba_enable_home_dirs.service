@@ -1,0 +1,7 @@
+[Service]
+Type=oneshot 
+#ExecStart=setsebool samba_enable_home_dirs 1
+ExecStart=setenforce 0
+RemainAfterExit=yes
+[Install]
+WantedBy=multi-user.target

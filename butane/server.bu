@@ -1,0 +1,360 @@
+# Fedora CoreOS Home Infrastructure (IaC)
+# Butane configuration for Podman Quadlet services
+# Copyright (c) 2026 Thomas
+# License: MIT
+
+variant: fcos
+version: 1.5.0
+passwd:
+  users:
+    - name: core
+      uid: 1001
+    - name: thomas
+      home_dir: /var/swarm/home/thomas
+      password_hash: ----snip----
+      uid: 1000
+      ssh_authorized_keys_local:
+        - files/keys/ssh-key.pub
+      groups:
+        - wheel
+        - sudo
+    - name: containers
+      home_dir: /var/swarm/home/containers
+      uid: 1002
+systemd:
+  units:
+    - name: rpm-ostree-install.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Layer additional rpms
+        Wants=network-online.target
+        After=network-online.target
+        # We run before `zincati.service` to avoid conflicting rpm-ostree transactions.
+        Before=zincati.service
+        ConditionPathExists=!/var/lib/%N.stamp
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStart=/usr/bin/rpm-ostree install --apply-live --allow-inactive $RPMS
+        ExecStart=/bin/touch /var/lib/%N.stamp
+        [Install]
+        WantedBy=multi-user.target
+    - name: podman-auto-update.timer
+      enabled: true
+    - name: setsebool-samba_enable_home_dirs.service
+      enabled: true
+      contents_local: files/services/setsebool-samba_enable_home_dirs.service
+    - name: swarm-backup.timer
+      enabled: true
+      contents_local: files/services/swarm-backup.timer
+    - name: swarm-backup.service
+      enabled: false
+      contents_local: files/services/swarm-backup.service
+    - name: var-swarm.mount
+      enabled: true
+      contents_local: files/services/var-swarm.mount
+    - name: var-backup.mount
+      enabled: true
+      contents_local: files/services/var-backup.mount
+    - name: bcachefs-auto-snapshot.service
+      enabled: true
+      contents_local: files/services/bcachefs-auto-snapshot.service
+    - name: bcachefs-auto-snapshot.timer
+      enabled: true
+      contents_local: files/services/bcachefs-auto-snapshot.timer
+    - name: bcachefs-scrub@.service
+      enabled: false
+      contents_local: files/services/bcachefs-scrub@.service
+    - name: bcachefs-scrub@.timer
+      enabled: false
+      contents_local: files/services/bcachefs-scrub@.timer
+storage:
+  directories:
+    - path: /var/swarm/home/containers/.config/containers/systemd
+      user:
+        name: containers
+      group:
+        name: containers
+      mode: 0755
+  files:
+    - path: /etc/selinux/targeted/contexts/files/file_contexts.subs
+      append:
+        - inline: |
+            /var/swarm /var
+            /var/swarm/home /var/home
+    - path: /etc/sysctl.d/90-ip_unprivileged_port_start.conf
+      contents:
+        inline: |
+          net.ipv4.ip_unprivileged_port_start = 80
+    - path: /etc/zincati/config.d/55-updates-strategy.toml
+      contents:
+        inline: |
+          [updates]
+          strategy = "periodic"
+          [[updates.periodic.window]]
+          days = [ "Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri" ]
+          start_time = "05:00"
+          length_minutes = 60
+    - path: /etc/hostname
+      mode: 0644
+      contents:
+        inline: |
+          server
+    - path: /etc/systemd/system/rpm-ostree-install.service.d/rpms.conf
+      mode: 0644
+      contents:
+        inline: |
+          [Service]
+          Environment=RPMS="samba wsdd"
+    - path: /var/lib/systemd/linger/containers
+      mode: 0644
+    - path: /var/lib/systemd/linger/thomas
+      mode: 0644
+    - path: /var/swarm/home/containers/.config/containers/systemd/web.network
+      user:
+        name: containers
+      group:
+        name: containers
+      mode: 0644
+      contents_local: files/containers/web.network
+    - path: /var/swarm/home/containers/.config/containers/systemd/postgresql.container
+      user:
+        name: containers
+      group:
+        name: containers
+      mode: 0644
+      contents_local: files/containers/postgresql.container
+    - path: /var/swarm/home/containers/.config/containers/systemd/redis.container
+      user:
+        name: containers
+      group:
+        name: containers
+      mode: 0644
+      contents_local: files/containers/redis.container
+    - path: /var/swarm/home/containers/.config/containers/systemd/minio.container
+      user:
+        name: containers
+      group:
+        name: containers
+      mode: 0644
+      contents_local: files/containers/minio.container
+    - path: /var/swarm/home/containers/.config/containers/systemd/caddy.container
+      user:
+        name: containers
+      group:
+        name: containers
+      mode: 0644
+      contents_local: files/containers/caddy.container
+    - path: /var/swarm/home/containers/.config/containers/systemd/mosquitto.container
+      user:
+        name: containers
+      group:
+        name: containers
+      mode: 0644
+      contents_local: files/containers/mosquitto.container
+    - path: /var/swarm/home/containers/.config/containers/systemd/gluetun.container
+      user:
+        name: containers
+      group:
+        name: containers
+      mode: 0644
+      contents_local: files/containers/gluetun.container
+    - path: /var/swarm/home/containers/.config/containers/systemd/qbittorrent.container
+      user:
+        name: containers
+      group:
+        name: containers
+      mode: 0644
+      contents_local: files/containers/qbittorrent.container
+    - path: /var/swarm/home/containers/.config/containers/systemd/transmission.container
+      user:
+        name: containers
+      group:
+        name: containers
+      mode: 0644
+      contents_local: files/containers/transmission.container
+    - path: /var/swarm/home/containers/.config/containers/systemd/plex.container
+      user:
+        name: containers
+      group:
+        name: containers
+      mode: 0644
+      contents_local: files/containers/plex.container
+    - path: /var/swarm/home/containers/.config/containers/systemd/jellyfin.container
+      user:
+        name: containers
+      group:
+        name: containers
+      mode: 0644
+      contents_local: files/containers/jellyfin.container
+    - path: /var/swarm/home/containers/.config/containers/systemd/navidrome.container
+      user:
+        name: containers
+      group:
+        name: containers
+      mode: 0644
+      contents_local: files/containers/navidrome.container
+    - path: /var/swarm/home/containers/.config/containers/systemd/home-assistant.container
+      user:
+        name: containers
+      group:
+        name: containers
+      mode: 0644
+      contents_local: files/containers/home-assistant.container
+    - path: /var/swarm/home/containers/.config/containers/systemd/frigate.container
+      user:
+        name: containers
+      group:
+        name: containers
+      mode: 0644
+      contents_local: files/containers/frigate.container
+
+    - path: /var/swarm/home/containers/.config/containers/systemd/prowlarr.container
+      user:
+        name: containers
+      group:
+        name: containers
+      mode: 0644
+      contents_local: files/containers/prowlarr.container
+    - path: /var/swarm/home/containers/.config/containers/systemd/radarr.container
+      user:
+        name: containers
+      group:
+        name: containers
+      mode: 0644
+      contents_local: files/containers/radarr.container
+    - path: /var/swarm/home/containers/.config/containers/systemd/radarr4k.container
+      user:
+        name: containers
+      group:
+        name: containers
+      mode: 0644
+      contents_local: files/containers/radarr4k.container
+    - path: /var/swarm/home/containers/.config/containers/systemd/sonarr.container
+      user:
+        name: containers
+      group:
+        name: containers
+      mode: 0644
+      contents_local: files/containers/sonarr.container
+    - path: /var/swarm/home/containers/.config/containers/systemd/sonarr4k.container
+      user:
+        name: containers
+      group:
+        name: containers
+      mode: 0644
+      contents_local: files/containers/sonarr4k.container
+    - path: /var/swarm/home/containers/.config/containers/systemd/lidarr.container
+      user:
+        name: containers
+      group:
+        name: containers
+      mode: 0644
+      contents_local: files/containers/lidarr.container
+    - path: /var/swarm/home/containers/.config/containers/systemd/jackett.container
+      user:
+        name: containers
+      group:
+        name: containers
+      mode: 0644
+      contents_local: files/containers/jackett.container
+    - path: /var/swarm/home/containers/.config/containers/systemd/flaresolver.container
+      user:
+        name: containers
+      group:
+        name: containers
+      mode: 0644
+      contents_local: files/containers/flaresolver.container
+    - path: /var/swarm/home/containers/.config/containers/systemd/nextcloud.container
+      user:
+        name: containers
+      group:
+        name: containers
+      mode: 0644
+      contents_local: files/containers/nextcloud.container
+    - path: /var/swarm/home/containers/.config/containers/systemd/ente.container
+      user:
+        name: containers
+      group:
+        name: containers
+      mode: 0644
+      contents_local: files/containers/ente.container
+    - path: /var/swarm/home/containers/.config/containers/systemd/ente-web.container
+      user:
+        name: containers
+      group:
+        name: containers
+      mode: 0644
+      contents_local: files/containers/ente-web.container
+    - path: /var/swarm/home/containers/.config/containers/systemd/synapse.container
+      user:
+        name: containers
+      group:
+        name: containers
+      mode: 0644
+      contents_local: files/containers/synapse.container
+    - path: /var/swarm/home/containers/.config/containers/systemd/livekit.container
+      user:
+        name: containers
+      group:
+        name: containers
+      mode: 0644
+      contents_local: files/containers/livekit.container
+    - path: /var/swarm/home/containers/.config/containers/systemd/lk-jwt.container
+      user:
+        name: containers
+      group:
+        name: containers
+      mode: 0644
+      contents_local: files/containers/lk-jwt.container
+
+    - path: /var/swarm/home/containers/.config/containers/systemd/cleanuparr.container
+      user:
+        name: containers
+      group:
+        name: containers
+      mode: 0644
+      contents_local: files/containers/cleanuparr.container
+    - path: /var/swarm/home/containers/.config/containers/systemd/recyclarr.container
+      user:
+        name: containers
+      group:
+        name: containers
+      mode: 0644
+      contents_local: files/containers/recyclarr.container
+    - path: /var/swarm/home/containers/.config/containers/systemd/seerr.container
+      user:
+        name: containers
+      group:
+        name: containers
+      mode: 0644
+      contents_local: files/containers/seerr.container
+    - path: /var/swarm/home/containers/.config/containers/systemd/piebot.container
+      user:
+        name: containers
+      group:
+        name: containers
+      mode: 0644
+      contents_local: files/containers/piebot.container
+    - path: /var/swarm/home/containers/.config/containers/systemd/lavalink.container
+      user:
+        name: containers
+      group:
+        name: containers
+      mode: 0644
+      contents_local: files/containers/lavalink.container
+    - path: /var/swarm/home/containers/.config/containers/systemd/mc.container
+      user:
+        name: containers
+      group:
+        name: containers
+      mode: 0644
+      contents_local: files/containers/mc.container
+  links:
+    - path: /etc/systemd/system/multi-user.target.wants/smb.service
+      target: /usr/lib/systemd/system/smb.service
+      hard: false
+    - path: /etc/systemd/system/multi-user.target.wants/wsdd.service
+      target: /usr/lib/systemd/system/wsdd.service
+      hard: false

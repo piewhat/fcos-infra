@@ -1,0 +1,23 @@
+[Unit]
+Description=radarr
+After=network-online.target qbittorrent.service
+Wants=network-online.target
+
+[Container]
+ContainerName=radarr
+Image=ghcr.io/hotio/radarr:release
+PublishPort=7878:7878
+Environment=PUID=1005
+Environment=PGID=1005
+Environment=UMASK=002
+Environment=TZ="Etc/UTC"
+Volume=/var/swarm/media/other/arr:/data:z
+Volume=/var/swarm/home/containers/radarr/config:/config:Z
+Network=web.network
+AutoUpdate=registry
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

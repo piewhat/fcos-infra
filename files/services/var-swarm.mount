@@ -1,0 +1,13 @@
+[Unit]
+Description=Mount /var/swarm
+
+[Mount]
+What=/dev/disk/by-uuid/3bbacece-7fc8-43d1-88b0-520b43d0b855
+Where=/var/swarm
+Type=bcachefs
+Options=defaults
+LazyUnmount=yes
+TimeoutSec=0
+
+[Install]
+WantedBy=local-fs.target

@@ -1,0 +1,24 @@
+[Unit]
+Description=minio
+After=network-online.target
+Wants=network-online.target
+
+[Container]
+ContainerName=minio
+Image=docker.io/minio/minio:latest
+Volume=/var/swarm/home/containers/minio:/data:Z
+Exec=server /data --address ":3200" --console-address ":3201"
+Environment=MINIO_ROOT_USER=admin
+Environment=MINIO_ROOT_PASSWORD=----snip----
+Environment=MINIO_DEFAULT_BUCKETS=ente
+PublishPort=3200:3200
+PublishPort=3201:3201
+Network=web.network
+AutoUpdate=registry
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target
+

@@ -1,0 +1,20 @@
+[Unit]
+Description=bcachefs automatic snapshot timer (every 15 minutes)
+Documentation=man:bcachefs(8)
+
+[Timer]
+# Run at :00, :15, :30, :45 of every hour
+OnCalendar=*:00,15,30,45
+
+# If the system was off during a scheduled run, don't catch up
+Persistent=false
+
+# Ensure timer stays synchronized to the calendar
+AccuracySec=1s
+
+# Optional: Add a small random delay to avoid all systems hitting storage at once
+# Remove this if you want exact timing
+# RandomizedDelaySec=30s
+
+[Install]
+WantedBy=timers.target
