@@ -10,7 +10,7 @@ This infrastructure uses Butane to generate Ignition files for automated deploym
 - **Filesystem**: bcachefs support is provided by [fedora-coreos-bcachefs](https://github.com/piewhat/fedora-coreos-bcachefs). To use it, the system must be rebased after installation.
 - **Orchestration**: [Podman Quadlets](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html) manage containers as native systemd units. Configuration files are located in `files/containers/`.
 - **Provisioning**: [Butane](https://coreos.github.io/butane/) handles the configuration of users, storage, and services.
-- **Updates**: [Zincati](https://docs.fedoraproject.org/en-US/fedora-coreos/auto-updates/) manages OS updates, while `podman-auto-update` handles container images.
+- **Updates**: See README in [fedora-coreos-bcachefs](https://github.com/piewhat/fedora-coreos-bcachefs), while `podman-auto-update` handles container images.
 
 ## Deployed Services
 
