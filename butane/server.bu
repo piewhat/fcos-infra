@@ -107,6 +107,21 @@ storage:
         inline: |
           [Service]
           Environment=RPMS="samba wsdd"
+    - path: /etc/systemd/user/podman-auto-update.timer.d/schedule.conf
+      mode: 0644
+      contents:
+        inline: |
+          [Timer]
+          OnCalendar=
+          OnCalendar=*-*-* 04:30:00
+          RandomizedDelaySec=15m
+          Persistent=true
+    - path: /etc/systemd/user/podman-auto-update.service.d/prune.conf
+      mode: 0644
+      contents:
+        inline: |
+          [Service]
+          ExecStartPost=/usr/bin/podman image prune -f
     - path: /var/lib/systemd/linger/containers
       mode: 0644
     - path: /var/lib/systemd/linger/thomas
@@ -352,6 +367,8 @@ storage:
       mode: 0644
       contents_local: files/containers/mc.container
   links:
+    - path: /etc/systemd/user/timers.target.wants/podman-auto-update.timer
+      target: /usr/lib/systemd/user/podman-auto-update.timer
     - path: /etc/systemd/system/multi-user.target.wants/smb.service
       target: /usr/lib/systemd/system/smb.service
       hard: false
